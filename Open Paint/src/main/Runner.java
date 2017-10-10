@@ -55,7 +55,7 @@ public class Runner implements GRunner {
 
 	@Override
 	public void act(int id) {
-		
+
 		if (id == 1) {
 			layers.add(new Layer("Layer " + (layerCount++), imageSize));
 			selectedLayer = layers.size() - 1;
@@ -124,9 +124,36 @@ public class Runner implements GRunner {
 		if (id == 11) {
 			Importer im = new Importer();
 			ArrayList<String> raw = TextIO.read(im.getPath());
-			//reading the file
+			// reading the file
 			Layer tempLayer = null;
-			
+			int rowCounter = 0;
+			boolean inImage = false;
+			for (int i = 0; i < raw.size(); i++) {
+				if (inImage) {
+					if (raw.get(i).contains("end")) {
+						layers.add(tempLayer);
+						tempLayer = null;
+						rowCounter = 0;
+						inImage = false;
+					}else {
+						String[] row = seperateStringedArray(',',raw.get(i));
+						for (int j = 0;j < row.length;j++) {
+							tempLayer.getImage().setRGB(j, rowCounter, Integer.valueOf(row[j]));
+						}
+						rowCounter++;
+					}
+					
+				}
+				if (raw.get(i).contains("Layer")) {
+					String[] size = seperateStringedArray(',', raw.get(i).substring(raw.get(i).indexOf('|') + 1));
+					tempLayer = new Layer(
+							raw.get(i).substring(raw.get(i).indexOf('"') + 1,
+									raw.get(i).indexOf('"', raw.get(i).indexOf('"') + 1)),
+							new Dimension(Integer.valueOf(size[0]), Integer.valueOf(size[1])));
+					inImage = true;
+				}
+			}
+			JOptionPane.showMessageDialog(null, "Successfully loaded project!");
 		}
 		// import
 		if (id == 12) {
