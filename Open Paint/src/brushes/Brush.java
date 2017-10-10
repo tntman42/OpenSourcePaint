@@ -21,6 +21,8 @@ public abstract class Brush {
 		b.add(new NormalBrush("Square Brush"));
 		b.add(new Fill());
 		b.add(new Ereaser());
+		b.add(new DrawPolygon());
+		b.add(new StraightEdge());
 	}
 
 	public abstract void draw(BufferedImage image, Point c);
