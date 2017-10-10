@@ -52,7 +52,7 @@ public class Fill extends Brush {
 		}
 		LinkedList<Point> nodeList = new LinkedList<Point>();
 		while (true) {
-			path[y][x] = -1;
+			path[y][x] = 1;
 			boolean moved = false;
 			if (y < path.length - 1 && path[y+1][x] == passable) {
 				nodeList.add(new Point(x,y));
