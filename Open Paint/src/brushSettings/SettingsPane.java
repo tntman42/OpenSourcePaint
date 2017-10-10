@@ -114,7 +114,8 @@ public class SettingsPane {
 		if (b instanceof StraightEdge) {
 			StraightEdge se = (StraightEdge) b;
 			se.setColor(colors.getColor());
-			sliders.get(LINE_THICKNESS).
+			sliders.get(LINE_THICKNESS).setX(colors.getWidth() + 2);
+			se.setSize(sliders.get(LINE_THICKNESS).getVal());
 		}
 	}
 
@@ -138,7 +139,8 @@ public class SettingsPane {
 			sliders.get(POLYGON_SIZE).render(g);
 		}
 		if (b instanceof StraightEdge) {
-
+			colors.render(g);
+			sliders.get(LINE_THICKNESS).render(g);
 		}
 	}
 
