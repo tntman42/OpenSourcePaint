@@ -25,7 +25,7 @@ public class Slider {
 	public Slider(String name, int x) {
 		val = 0;
 		this.name = name;
-		this.x = x;
+		this.max = x;
 	}
 
 	public Slider(String name, int x, int start) {
