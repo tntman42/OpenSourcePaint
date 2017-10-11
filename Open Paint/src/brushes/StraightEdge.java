@@ -44,7 +44,7 @@ public class StraightEdge extends Brush {
 	public void lift() {
 		if (im != null && start != null) {
 			im.setColor(col);
-			im.setStroke(new BasicStroke(size));
+			im.setStroke(new BasicStroke(size,BasicStroke.CAP_ROUND,BasicStroke.JOIN_BEVEL));
 			im.drawLine((int) start.getX(), (int) start.getY(), (int) end.getX(), (int) end.getY());
 		}
 		start = null;

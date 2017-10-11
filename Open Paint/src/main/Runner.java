@@ -53,11 +53,17 @@ public class Runner implements GRunner {
 
 	private SettingsPane settings;
 
+	private LinkedList<LinkedList<Layer>> undoStack;
+	private static final char[] commandKeys = { 'z', 's', 'o', 'r' };
+	private String savePath;
+	private boolean[] commandKeyPress = new boolean[commandKeys.length];
+	private boolean ctrl = false;
+
 	@Override
 	public void act(int id) {
 
 		if (id == 1) {
-			layers.add(new Layer("Layer " + (layerCount++), imageSize));
+			layers.add(new Layer("Layer_" + (layerCount++), imageSize));
 			selectedLayer = layers.size() - 1;
 		}
 		if (id == 2 && minListViewInd > 0) {
@@ -96,63 +102,15 @@ public class Runner implements GRunner {
 
 		// render
 		if (id == 9) {
-			RenderManager rm = new RenderManager(layers);
-			Importer im = new Importer();
-			im.save(rm.render());
+			renderImage();
 		}
 		// save
 		if (id == 10) {
-			ArrayList<String> dat = new ArrayList<String>();
-			for (int i = 0; i < layers.size(); i++) {
-				dat.add("Layer:\"" + layers.get(i).getName().replaceAll(" ", "_") + "\"|"
-						+ layers.get(i).getImage().getWidth() + "," + layers.get(i).getImage().getHeight());
-				BufferedImage img = layers.get(i).getImage();
-				for (int j = 0; j < img.getHeight(); j++) {
-					String row = "";
-					for (int k = 0; k < img.getWidth(); k++) {
-						row += img.getRGB(k, j) + ",";
-					}
-					dat.add(row.substring(0, row.length() - 1));
-				}
-				dat.add("end");
-			}
-			Importer im = new Importer();
-			TextIO.write(im.getPath() + ".proj", dat);
-
+			save();
 		}
 		// open
 		if (id == 11) {
-			Importer im = new Importer();
-			ArrayList<String> raw = TextIO.read(im.getPath());
-			Layer tempLayer = null;
-			int rowCounter = 0;
-			boolean inImage = false;
-			for (int i = 0; i < raw.size(); i++) {
-				if (inImage) {
-					if (raw.get(i).contains("end")) {
-						layers.add(tempLayer);
-						tempLayer = null;
-						rowCounter = 0;
-						inImage = false;
-					} else {
-						String[] row = seperateStringedArray(',', raw.get(i));
-						for (int j = 0; j < row.length; j++) {
-							tempLayer.getImage().setRGB(j, rowCounter, Integer.valueOf(row[j]));
-						}
-						rowCounter++;
-					}
-
-				}
-				if (raw.get(i).contains("Layer")) {
-					String[] size = seperateStringedArray(',', raw.get(i).substring(raw.get(i).indexOf('|') + 1));
-					tempLayer = new Layer(
-							raw.get(i).substring(raw.get(i).indexOf('"') + 1,
-									raw.get(i).indexOf('"', raw.get(i).indexOf('"') + 1)),
-							new Dimension(Integer.valueOf(size[0]), Integer.valueOf(size[1])));
-					inImage = true;
-				}
-			}
-			JOptionPane.showMessageDialog(null, "Successfully loaded project!");
+			open();
 		}
 		// import
 		if (id == 12) {
@@ -198,14 +156,111 @@ public class Runner implements GRunner {
 		}
 	}
 
+	public void renderImage() {
+		RenderManager rm = new RenderManager(layers);
+		Importer im = new Importer();
+		im.save(rm.render());
+	}
+
+	public void open() {
+		Importer im = new Importer();
+		savePath = im.getPath();
+		ArrayList<String> raw = TextIO.read(savePath);
+		Layer tempLayer = null;
+		int rowCounter = 0;
+		boolean inImage = false;
+		for (int i = 0; i < raw.size(); i++) {
+			if (inImage) {
+				if (raw.get(i).contains("end")) {
+					layers.add(tempLayer);
+					tempLayer = null;
+					rowCounter = 0;
+					inImage = false;
+				} else {
+					String[] row = seperateStringedArray(',', raw.get(i));
+					for (int j = 0; j < row.length; j++) {
+						tempLayer.getImage().setRGB(j, rowCounter, Integer.valueOf(row[j]));
+					}
+					rowCounter++;
+				}
+
+			}
+			if (raw.get(i).contains("Layer")) {
+				String[] size = seperateStringedArray(',', raw.get(i).substring(raw.get(i).indexOf('|') + 1));
+				tempLayer = new Layer(
+						raw.get(i).substring(raw.get(i).indexOf('"') + 1,
+								raw.get(i).indexOf('"', raw.get(i).indexOf('"') + 1)),
+						new Dimension(Integer.valueOf(size[0]), Integer.valueOf(size[1])));
+				inImage = true;
+			}
+		}
+		JOptionPane.showMessageDialog(null, "Successfully loaded project!");
+	}
+
+	public void save() {
+		ArrayList<String> dat = new ArrayList<String>();
+		for (int i = 0; i < layers.size(); i++) {
+			dat.add("Layer:\"" + layers.get(i).getName().replaceAll(" ", "_") + "\"|"
+					+ layers.get(i).getImage().getWidth() + "," + layers.get(i).getImage().getHeight());
+			BufferedImage img = layers.get(i).getImage();
+			for (int j = 0; j < img.getHeight(); j++) {
+				String row = "";
+				for (int k = 0; k < img.getWidth(); k++) {
+					row += img.getRGB(k, j) + ",";
+				}
+				dat.add(row.substring(0, row.length() - 1));
+			}
+			dat.add("end");
+		}
+		if (savePath == null) {
+			Importer im = new Importer();
+			savePath = im.getPath() + ".proj";
+			TextIO.write(savePath, dat);
+		} else {
+			TextIO.write(savePath, dat);
+		}
+	}
+
 	@Override
 	public void keyPressed(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
+			ctrl = true;
+			System.out.println("Control was pressed");
+		}
+		if (e.getKeyCode() == KeyEvent.VK_Z) {
+			commandKeyPress[0] = true;
+		}
+		if (e.getKeyCode() == KeyEvent.VK_S) {
+			commandKeyPress[1] = true;
+		}
+		if (e.getKeyCode() == KeyEvent.VK_O) {
+			commandKeyPress[2] = true;
+		}
+		if (e.getKeyCode() == KeyEvent.VK_R) {
+			commandKeyPress[3] = true;
+		}
+		if (ctrl && commandKeyPress[0]) { // ctrl + z
 
+		}
+		if (ctrl && commandKeyPress[1]) { // ctrl + s
+			save();
+		}
+		if (ctrl && commandKeyPress[2]) { // ctrl + o
+			open();
+		}
+		if (ctrl && commandKeyPress[3]) { // ctrl + r
+			renderImage();
+		}
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-
+		if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
+			ctrl = false;
+		}
+		for (int i = 0; i < commandKeys.length; i++) {
+			commandKeyPress[i] = false;
+		}
 	}
 
 	@Override
@@ -239,6 +294,10 @@ public class Runner implements GRunner {
 			brushes.get(i).lift();
 		}
 		settings.mouseReleased();
+		// undo copies
+		LinkedList<Layer> clone = new LinkedList<Layer>();
+		layers.forEach(layer -> clone.add(layer));
+		undoStack.add(clone);
 	}
 
 	@Override
@@ -326,6 +385,8 @@ public class Runner implements GRunner {
 		Brush.getBrushSet(brushes);
 
 		settings = new SettingsPane(brushes);
+
+		undoStack = new LinkedList<LinkedList<Layer>>();
 
 		this.m = m;
 
