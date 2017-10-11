@@ -163,6 +163,15 @@ public class Runner implements GRunner {
 	}
 
 	public void open() {
+		if (savePath == null) {
+			if (JOptionPane.showConfirmDialog(null,
+					"You have not saved, would you like to?") == JOptionPane.YES_OPTION) {
+				save();
+			}
+		} else {
+			save();
+		}
+		layers.clear();
 		Importer im = new Importer();
 		savePath = im.getPath();
 		ArrayList<String> raw = TextIO.read(savePath);
@@ -225,7 +234,6 @@ public class Runner implements GRunner {
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
 			ctrl = true;
-			System.out.println("Control was pressed");
 		}
 		if (e.getKeyCode() == KeyEvent.VK_Z) {
 			commandKeyPress[0] = true;
@@ -240,7 +248,8 @@ public class Runner implements GRunner {
 			commandKeyPress[3] = true;
 		}
 		if (ctrl && commandKeyPress[0]) { // ctrl + z
-
+			undoStack.removeLast();
+			layers = undoStack.getLast();
 		}
 		if (ctrl && commandKeyPress[1]) { // ctrl + s
 			save();
@@ -289,15 +298,16 @@ public class Runner implements GRunner {
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
+		if (drawing) {
+			LinkedList<Layer> clone = new LinkedList<Layer>();
+			layers.forEach(layer -> clone.add(layer.clone()));
+			undoStack.add(clone);
+		}
 		drawing = false;
 		for (int i = 0; i < brushes.size(); i++) {
 			brushes.get(i).lift();
 		}
 		settings.mouseReleased();
-		// undo copies
-		LinkedList<Layer> clone = new LinkedList<Layer>();
-		layers.forEach(layer -> clone.add(layer));
-		undoStack.add(clone);
 	}
 
 	@Override
@@ -387,6 +397,7 @@ public class Runner implements GRunner {
 		settings = new SettingsPane(brushes);
 
 		undoStack = new LinkedList<LinkedList<Layer>>();
+		undoStack.add(new LinkedList<Layer>());
 
 		this.m = m;
 
@@ -418,6 +429,7 @@ public class Runner implements GRunner {
 		m.getButton(3, 0).setBounds(Game.WIDTH / 5 - 30, 30 + 3 * Game.HEIGHT / 4, 25, 20);
 		settings.tick();
 		settings.setSelectedBrush(selectedBrush);
+		
 
 		m.getButton(9, 0).setBounds(Game.WIDTH - 125, 10, 100, 30);
 		m.getButton(10, 0).setBounds(Game.WIDTH - 230, 10, 100, 30);

@@ -18,7 +18,7 @@ public abstract class Brush {
 	}
 
 	public static void getBrushSet(LinkedList<Brush> b) {
-		b.add(new NormalBrush("Square Brush"));
+		b.add(new NormalBrush("Brush"));
 		b.add(new Fill());
 		b.add(new Ereaser());
 		b.add(new DrawPolygon());

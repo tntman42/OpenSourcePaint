@@ -38,6 +38,7 @@ public class NormalBrush extends Brush {
 			old.setLocation(c);
 		}
 		Graphics2D grap = g.createGraphics();
+		grap.setColor(this.c);
 		grap.setStroke(new BasicStroke(size,BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL));
 		grap.drawLine((int)old.getX(), (int)old.getY(), (int)c.getX(), (int)c.getY());
 		if (c != null && old != null) {
@@ -53,8 +54,13 @@ public class NormalBrush extends Brush {
 
 	@Override
 	public Polygon bounds() {
-		int[] xs = {-size/2,-size/2,size/2,size/2};
-		int[] ys = {-size/2,size/2,size/2,-size/2};
-		return new Polygon(xs,ys,4);
+		int sides = 180;
+		int[] xs = new int[sides];
+		int[] ys = new int[sides];
+		for (int i = 0; i < sides; i++) {
+			xs[i] = (int) (Math.cos(i * Math.PI * 2 / sides) * size/2);
+			ys[i] = (int) (Math.sin(i * Math.PI * 2 / sides) * size/2);
+		}
+		return new Polygon(xs,ys,sides);
 	}
 }
