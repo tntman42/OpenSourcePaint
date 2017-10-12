@@ -55,7 +55,7 @@ public class Runner implements GRunner {
 
 	private LinkedList<LinkedList<Layer>> undoStack;
 	private String savePath;
-	private boolean[] commandKeyPress = new boolean[commandKeys.length];
+	private boolean[] commandKeyPress = new boolean[4];
 	private boolean ctrl = false;
 
 	@Override
