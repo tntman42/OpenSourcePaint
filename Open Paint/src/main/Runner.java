@@ -54,7 +54,6 @@ public class Runner implements GRunner {
 	private SettingsPane settings;
 
 	private LinkedList<LinkedList<Layer>> undoStack;
-	private static final char[] commandKeys = { 'z', 's', 'o', 'r' };
 	private String savePath;
 	private boolean[] commandKeyPress = new boolean[commandKeys.length];
 	private boolean ctrl = false;
