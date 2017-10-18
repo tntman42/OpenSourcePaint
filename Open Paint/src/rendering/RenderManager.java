@@ -1,6 +1,8 @@
 package rendering;
 
+import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 
@@ -14,15 +16,24 @@ public class RenderManager {
 		this.layers = layers;
 	}
 
-	public BufferedImage render() {
-		BufferedImage rendered = new BufferedImage(layers.get(0).getImage().getWidth(),
-				layers.get(0).getImage().getHeight(), BufferedImage.TYPE_INT_ARGB);
-		
+	public BufferedImage render(Dimension size) {
+		BufferedImage rendered = new BufferedImage((int) size.getWidth(), (int) size.getHeight(),
+				BufferedImage.TYPE_INT_ARGB);
+
 		Graphics g = rendered.getGraphics();
-		for (int i = 0;i < layers.size();i++) {
-			g.drawImage(layers.get(i).getImage(), 0, 0, null);
+		for (int i = 0; i < layers.size(); i++) {
+
+			double smallDim = size.getWidth();
+			double comparison = layers.get(i).getImage().getWidth();
+			if (layers.get(i).getImage().getHeight() * smallDim / comparison > size.getHeight()) {
+				smallDim = (int) size.getHeight();
+				comparison = layers.get(i).getImage().getHeight();
+			}
+			g.drawImage(layers.get(i).getImage(), 0, 0,
+					(int) (layers.get(i).getImage().getWidth() * smallDim / comparison),
+					(int) (layers.get(i).getImage().getHeight() * smallDim / comparison), null);
 		}
-		
+
 		return rendered;
 	}
 

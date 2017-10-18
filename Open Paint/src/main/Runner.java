@@ -17,6 +17,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
 
 import javax.swing.JOptionPane;
 
@@ -54,9 +55,8 @@ public class Runner implements GRunner {
 	private SettingsPane settings;
 
 	private LinkedList<LinkedList<Layer>> undoStack;
-	private static final char[] commandKeys = { 'z', 's', 'o', 'r' };
 	private String savePath;
-	private boolean[] commandKeyPress = new boolean[commandKeys.length];
+	private boolean[] commandKeyPress = new boolean[4];
 	private boolean ctrl = false;
 
 	@Override
@@ -117,13 +117,16 @@ public class Runner implements GRunner {
 			Importer im = new Importer();
 			File f = new File(im.getPath());
 			BufferedImage img = (BufferedImage) ImageLoader.createImage(f.getPath());
-			Layer l = new Layer(f.getName(), imageSize);
+			Layer l = new Layer(f.getName(), new Dimension(img.getWidth(),img.getHeight()));
 			for (int i = 0; i < l.getImage().getHeight() && i < img.getHeight(); i++) {
 				for (int j = 0; j < l.getImage().getWidth() && j < img.getWidth(); j++) {
 					l.getImage().setRGB(j, i, img.getRGB(j, i));
 				}
 			}
 			layers.add(l);
+			LinkedList<Layer> clone = new LinkedList<Layer>();
+			layers.forEach(layer -> clone.add(layer.clone()));
+			undoStack.add(clone);
 		}
 
 		if (id == 13) {
@@ -159,7 +162,7 @@ public class Runner implements GRunner {
 	public void renderImage() {
 		RenderManager rm = new RenderManager(layers);
 		Importer im = new Importer();
-		im.save(rm.render());
+		im.save(rm.render(imageSize));
 	}
 
 	public void open() {
@@ -248,8 +251,12 @@ public class Runner implements GRunner {
 			commandKeyPress[3] = true;
 		}
 		if (ctrl && commandKeyPress[0]) { // ctrl + z
-			undoStack.removeLast();
-			layers = undoStack.getLast();
+			try {
+				undoStack.removeLast();
+				layers = undoStack.getLast();
+			} catch (NoSuchElementException nse) {
+				System.err.println("Could not undo there were not any previous instances");
+			}
 		}
 		if (ctrl && commandKeyPress[1]) { // ctrl + s
 			save();
@@ -267,7 +274,7 @@ public class Runner implements GRunner {
 		if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
 			ctrl = false;
 		}
-		for (int i = 0; i < commandKeys.length; i++) {
+		for (int i = 0; i < 4; i++) {
 			commandKeyPress[i] = false;
 		}
 	}
@@ -429,7 +436,6 @@ public class Runner implements GRunner {
 		m.getButton(3, 0).setBounds(Game.WIDTH / 5 - 30, 30 + 3 * Game.HEIGHT / 4, 25, 20);
 		settings.tick();
 		settings.setSelectedBrush(selectedBrush);
-		
 
 		m.getButton(9, 0).setBounds(Game.WIDTH - 125, 10, 100, 30);
 		m.getButton(10, 0).setBounds(Game.WIDTH - 230, 10, 100, 30);

@@ -1,5 +1,6 @@
 package brushSettings;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -12,10 +13,10 @@ import Main.Game;
 public class AWTColorSelector {
 
 	private Color c;
-	private float h, s, b;
+	private float h, s, b, a;
 	private Rectangle sbSquare, hueRect;
 
-	private boolean editingSB = false, editingH = false;
+	private boolean editingSB = false, editingH = false, editingA = false;
 
 	private int x;
 
@@ -24,6 +25,7 @@ public class AWTColorSelector {
 		h = 0;
 		s = 0;
 		b = 1;
+		a = 1;
 		sbSquare = new Rectangle(0, 0, 10, 10);
 		hueRect = new Rectangle(0, 0, 10, 10);
 		this.x = x;
@@ -34,6 +36,7 @@ public class AWTColorSelector {
 		h = 0;
 		s = 0;
 		b = 1;
+		a = 1;
 		sbSquare = new Rectangle(0, 0, 10, 10);
 		hueRect = new Rectangle(0, 0, 10, 10);
 	}
@@ -42,8 +45,12 @@ public class AWTColorSelector {
 		return c;
 	}
 
+	public float getAlpha() {
+		return a;
+	}
+
 	public void setColor(Color c) {
-		float[] hsb = {h,s,b};
+		float[] hsb = { h, s, b };
 		Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(), hsb);
 		this.c = c;
 	}
@@ -151,6 +158,7 @@ public class AWTColorSelector {
 				7 + Game.HEIGHT / 4 + 57 + 44 + x, 3 * Game.HEIGHT / 4 + 57 + 2 * g.getFontMetrics().getHeight());
 
 		g.setColor(c);
+		g2d.setComposite(makeTransparent(a));
 		g.fillRect(7 + Game.HEIGHT / 4 + 57 + 46 + x, 3 * Game.HEIGHT / 4 + 57 + 3 * g.getFontMetrics().getHeight(), 50,
 				25);
 
@@ -159,9 +167,27 @@ public class AWTColorSelector {
 				(int) (sbSquare.getHeight() * (1 - b) - 4 + sbSquare.getY()), 8, 8);
 
 		g.drawRect((int) (hueRect.getX() - 1), (int) (h * hueRect.getHeight() + hueRect.getY() - 1), 42, 3);
+
+		// transparency
+		g.setColor(c);
+		for (int i = 0; i < this.getWidth() - (7 + Game.HEIGHT / 4 + 57 + 46 + x); i++) {
+			g2d.setComposite(makeTransparent((i / (this.getWidth() - (7 + Game.HEIGHT / 4 + 57 + 46 + x)))));
+			g2d.fillRect(i,10, 1, 10);
+		}
+		g2d.setComposite(makeTransparent(1));
+		g.setColor(Color.BLACK);
+		g.drawString("Transparency: " + (a * 100) + "%", 7 + Game.HEIGHT / 4 + 109 + 46 + x,
+				3 * Game.HEIGHT / 4 + 57 + 4 * g.getFontMetrics().getHeight());
+		g.drawRect(7 + Game.HEIGHT / 4 + 57 + 46 + x, 3 * Game.HEIGHT / 4 + 87 + 3 * g.getFontMetrics().getHeight(),
+				this.getWidth() - (7 + Game.HEIGHT / 4 + 57 + 46 + x), 10);
 	}
-	
+
 	public int getWidth() {
-		return (int)(sbSquare.getWidth() + 2 + hueRect.getWidth() + 252);
+		return (int) (sbSquare.getWidth() + 2 + hueRect.getWidth() + 252);
+	}
+
+	private AlphaComposite makeTransparent(float alpha) {
+		int type = AlphaComposite.SRC_OVER;
+		return (AlphaComposite.getInstance(type, alpha));
 	}
 }
