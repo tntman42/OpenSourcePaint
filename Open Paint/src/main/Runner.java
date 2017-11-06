@@ -266,7 +266,7 @@ public class Runner implements GRunner {
 		if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
 			ctrl = false;
 		}
-		for (int i = 0; i < commandKeys.length; i++) {
+		for (int i = 0; i < commandKeyPress.length; i++) {
 			commandKeyPress[i] = false;
 		}
 	}
@@ -299,7 +299,7 @@ public class Runner implements GRunner {
 	public void mouseReleased(MouseEvent e) {
 		if (drawing) {
 			LinkedList<Layer> clone = new LinkedList<Layer>();
-			layers.forEach(layer -> clone.add(layer.clone()));
+			layers.forEach(layer -> clone.add((Layer)layer.clone()));
 			undoStack.add(clone);
 		}
 		drawing = false;

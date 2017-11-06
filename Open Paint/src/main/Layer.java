@@ -42,4 +42,15 @@ public class Layer {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	@Override
+	public Layer clone(){
+		Layer l = new Layer(name,new Dimension(image.getWidth(),image.getHeight()));
+		for (int i = 0;i < image.getHeight();i++){
+			for (int j = 0;j < image.getWidth();j++){
+				l.image.setRGB(j, i, image.getRGB(j, i));
+			}
+		}
+		return l;
+	}
 }
