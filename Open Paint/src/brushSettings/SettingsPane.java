@@ -33,6 +33,7 @@ public class SettingsPane {
 		sliders.add(new Slider("Size of ereaser", 200));
 		sliders.add(new Slider("Number of sides", 360));
 		sliders.add(new Slider("Size of shape", 200));
+
 		sliders.add(new Slider("Thickness of line", 200));
 	}
 

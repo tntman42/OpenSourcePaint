@@ -43,13 +43,15 @@ public class Layer {
 		this.name = name;
 	}
 	
-	public Layer clone() {
-		Layer clone = new Layer(name,new Dimension(image.getWidth(),image.getHeight()));
-		for (int i = 0;i < image.getHeight();i++) {
-			for (int j = 0;j < image.getWidth();j++) {
-				clone.getImage().setRGB(j, i, image.getRGB(j, i));
+	
+	@Override
+	public Layer clone(){
+		Layer l = new Layer(name,new Dimension(image.getWidth(),image.getHeight()));
+		for (int i = 0;i < image.getHeight();i++){
+			for (int j = 0;j < image.getWidth();j++){
+				l.image.setRGB(j, i, image.getRGB(j, i));
 			}
 		}
-		return clone;
+		return l;
 	}
 }

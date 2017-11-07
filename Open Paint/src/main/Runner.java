@@ -257,6 +257,9 @@ public class Runner implements GRunner {
 			} catch (NoSuchElementException nse) {
 				System.err.println("Could not undo there were not any previous instances");
 			}
+			undoStack.removeLast();
+			layers = undoStack.getLast();
+
 		}
 		if (ctrl && commandKeyPress[1]) { // ctrl + s
 			save();
@@ -274,7 +277,8 @@ public class Runner implements GRunner {
 		if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
 			ctrl = false;
 		}
-		for (int i = 0; i < 4; i++) {
+
+		for (int i = 0; i < commandKeyPress.length; i++) {
 			commandKeyPress[i] = false;
 		}
 	}
@@ -436,6 +440,7 @@ public class Runner implements GRunner {
 		m.getButton(3, 0).setBounds(Game.WIDTH / 5 - 30, 30 + 3 * Game.HEIGHT / 4, 25, 20);
 		settings.tick();
 		settings.setSelectedBrush(selectedBrush);
+		
 
 		m.getButton(9, 0).setBounds(Game.WIDTH - 125, 10, 100, 30);
 		m.getButton(10, 0).setBounds(Game.WIDTH - 230, 10, 100, 30);
