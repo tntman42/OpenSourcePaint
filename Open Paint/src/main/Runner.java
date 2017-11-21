@@ -55,7 +55,7 @@ public class Runner implements GRunner {
 	private SettingsPane settings;
 
 	private LinkedList<LinkedList<Layer>> undoStack;
-	private String savePath;
+	private static String savePath;
 	private boolean[] commandKeyPress = new boolean[4];
 	private boolean ctrl = false;
 
@@ -475,6 +475,9 @@ public class Runner implements GRunner {
 		ws.setSize(new Dimension(1080, 890));
 		ws.setCloseOperation(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
+				if(savePath == null && JOptionPane.showConfirmDialog(null, "You have not saved, would you like to?") == JOptionPane.YES_OPTION) {
+					
+				}
 				e.getWindow().dispose();
 				System.exit(0);
 			}
